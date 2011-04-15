@@ -1,0 +1,11 @@
+Version 0.1
+This is just a sample version, it is not at all ready for production use.
+Here's what it does so far:
+1. Downloads the 'all projects' page
+2. Parses it to collect useable information about each project
+
+Here's what it doesn't to:
+1. Load extra project info
+2. Go through the rest of the pages
+
+NOTE: Soon, this will probably be completely rewritten to use launchpadlib, but that has not been decided yet, as launchpadlib appears to be slower and uses more bandwidth.
