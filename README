@@ -1,5 +1,4 @@
-Version 0.1
-This is just a sample version, it is not at all ready for production use.
+Version 0.2
 Here's what it does so far:
 1. Downloads the 'all projects' page
 2. Parses it to collect useable information about each project
@@ -8,4 +7,9 @@ Here's what it does so far:
 Here's what it doesn't to:
 1. Load extra project info
 
-
+the info that it does get:
+project name
+link
+description
+author's name
+author's launchpad page
