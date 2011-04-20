@@ -4,7 +4,7 @@ Here's what it does so far:
 2. Parses it to collect useable information about each project
 3. Goes through the rest of the pages
 
-Here's what it doesn't to:
+Here's what it doesn't do:
 1. Load extra project info
 
 the info that it does get:
