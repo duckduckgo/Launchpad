@@ -61,7 +61,7 @@ def do_page(pageurl):
         print desc
         print author
         print authorurl
-        print 'icon:', icon64
+        print 'icon:',  icon64
         print '---'
         
         
