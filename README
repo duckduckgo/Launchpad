@@ -13,3 +13,9 @@ link
 description
 author's name
 author's launchpad page
+
+How to run:
+    $ python lpscraper.py
+You can also add the following options:
+    -v          Be very verbose
+    -testicon   exit after the first project icon is found and print extra information about it
