@@ -8,6 +8,29 @@ else: testicon = False
 
 from urllib import urlopen 
 
+def do_proj_page(pageurl):
+    if v: print '- downloading project page...'
+    try: lp = urlopen(pageurl).read() # download the page's HTML
+    except: return # if there are any errors, just give up on this page
+    if v: print '- done'
+    
+    if v: print '- parsing it'
+    dates = []
+    for datesec in lp.split('on '): # the best thing I could find, almost all dates are like this: "...on 2011-05-02..."
+        pdate = datesec.split()[0].split('<')[0] # split with whitespace or <
+        pyear = pdate.split('-')[0]
+        try: ipyear = int(pyear) # easiest way to make sure it is made up of only numbers
+        except: ipyear = None
+        if ipyear and len(str(ipyear)) == 4: # if it really is a year...
+            dates += [ipyear]
+    if len(dates) > 0: # if there are any dates
+        date = dates[0]
+        for d in dates:
+            if d > date: date = d
+            
+        print 'most recent year:', date
+
+
 def do_page(pageurl):
     if v: print '- downloading page...'
     try: lp = urlopen(pageurl).read() # download the page's HTML
@@ -66,6 +89,9 @@ def do_page(pageurl):
         
         
         first = False
+        
+        do_proj_page(url)
+        
     if v: print '- done'
         
 
