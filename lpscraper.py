@@ -7,8 +7,23 @@ if '-testicon' in sys.argv: testicon = True
 else: testicon = False
 
 from urllib import urlopen 
+from datetime import datetime
+
+#print repos, "\t", language, "\t", description, "\t", watchers, "\t", time, "\n"
+global fdate
+global flanguage
+frepo = ''
+fname = ''
+flanguage = ''
+fdescription = ''
+fdate = ''
+fauthor = ''
+fauthorurl = ''
+ficon = ''
 
 def do_proj_page(pageurl):
+    global fdate
+    global flanguage
     if v: print '- downloading project page...'
     try: lp = urlopen(pageurl).read() # download the page's HTML
     except: return # if there are any errors, just give up on this page
@@ -17,18 +32,30 @@ def do_proj_page(pageurl):
     if v: print '- parsing it'
     dates = []
     for datesec in lp.split('on '): # the best thing I could find, almost all dates are like this: "...on 2011-05-02..."
-        pdate = datesec.split()[0].split('<')[0] # split with whitespace or <
+        try: pdate = datesec.split()[0].split('<')[0] # split with whitespace or <
+        except: pdate = '1066-12-10' #messy way of avoiding errors
         pyear = pdate.split('-')[0]
         try: ipyear = int(pyear) # easiest way to make sure it is made up of only numbers
         except: ipyear = None
         if ipyear and len(str(ipyear)) == 4: # if it really is a year...
             dates += [ipyear]
+    current_year = datetime.now().year
     if len(dates) > 0: # if there are any dates
         date = dates[0]
         for d in dates:
             if d > date: date = d
             
-        print 'most recent year:', date
+        #print 'most recent year:', date
+        fdate = date
+    elif str(current_year) + '-' in lp:
+        fdate = str(current_year)
+    else: # no regularly formatted years at all, and not the current year. probably an inactive project
+        fdate = 'old'
+    print fdate
+        
+    try: flanguage = lp.split('<dd><span id="edit-programminglang"><span class="yui3-editable_text-text">')[1].split('</span>')[0]
+    except IndexError: flanguage = ''
+    
 
 
 def do_page(pageurl):
@@ -68,7 +95,9 @@ def do_page(pageurl):
         url = 'https://launchpad.net' + namesec.split('<a href="')[1].split('"')[0]
         name = namesec.split(">")[1].split("<")[0]
         desc = descsec.split("<div>")[1]
-        authorurl = 'https://launchpad.net' + authorsec.split('<a href="')[1].split('"')[0]
+        try: authorurl = 'https://launchpad.net' + authorsec.split('<a href="')[1].split('"')[0]
+        except: # if the author is hidden
+            authorurl = '<hidden>'
         author = authorsec.split(">")[1].split("<")[0]
         if 'style="background-image: url(' in namesec:
             icon14 = namesec.split('style="background-image: url(')[1].split(")")[0]
@@ -79,18 +108,27 @@ def do_page(pageurl):
             if testicon: exit()
         else: icon64 = None
         
-        print name
-        print url
-        print desc
-        print author
-        print authorurl
-        print 'icon:', icon64
-        print '---'
+        #print name
+        #print url
+        #print desc
+        #print author
+        #print authorurl
+        #print 'icon:', icon64
+        #print '---'
+        fname = name
+        frepo = url
+        fdescription = desc
+        fauthor = author
+        fauthorurl = authorurl
+        ficon = icon64
+        
+        
         
         
         first = False
         
         do_proj_page(url)
+        print frepo, "\t", flanguage, "\t", fdescription, "\t", ficon, "\t", fdate, "\t", fauthor
         
     if v: print '- done'
         
@@ -119,6 +157,7 @@ for pagenum in range(0, pages):
     if v: print 'starting page', pagenum + 1
     url = 'http://launchpad.net/projects/+all?start=%s&batch=300' % (pagenum * 300)
     print do_page(url)
+    
 
 
 

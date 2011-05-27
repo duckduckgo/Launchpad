@@ -1,18 +1,9 @@
-Version 0.2
+Version 0.3
 Here's what it does so far:
 1. Downloads the 'all projects' page
 2. Parses it to collect useable information about each project
-3. Goes through the rest of the pages
-
-Here's what it doesn't do:
-1. Load extra project info
-
-the info that it does get:
-project name
-link
-description
-author's name
-author's launchpad page
+3. Follows its link and collects more information from its page
+4. Goes through the rest of the pages
 
 How to run:
     $ python lpscraper.py
