@@ -158,7 +158,7 @@ if v: print 'done,', pages, 'pages'
 for pagenum in range(0, pages):
     if v: print 'starting page', pagenum + 1
     url = 'http://launchpad.net/projects/+all?start=%s&batch=300' % (pagenum * 300)
-    print do_page(url)
+    do_page(url)
     
 
 
