@@ -8,6 +8,7 @@ else: testicon = False
 
 from urllib import urlopen 
 from datetime import datetime
+import time
 
 #print repos, "\t", language, "\t", description, "\t", watchers, "\t", time, "\n"
 global fdate
@@ -128,6 +129,7 @@ def do_page(pageurl):
         first = False
         
         do_proj_page(url)
+        time.sleep(1) # sleep 1 second and continue
         print frepo, "\t", flanguage, "\t", fdescription, "\t", ficon, "\t", fdate, "\t", fauthor
         
     if v: print '- done'
