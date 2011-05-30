@@ -1,14 +1,19 @@
 # I am only testing this in python 2.6 and 2.7. it will *NOT* work in python 3.x
 # use 'python lpscraper.py -v' to get frequent status updates
 import sys
+import time
+
+from httplib import HTTPSConnection # LP requires HTTPS in many places
+from urllib2 import urlopen 
+from datetime import datetime
+
+global hconn
+hconn = HTTPSConnection('launchpad.net', 443)
+
 if '-v' in sys.argv: v = True
 else: v = False
 if '-testicon' in sys.argv: testicon = True
 else: testicon = False
-
-from urllib import urlopen 
-from datetime import datetime
-import time
 
 #print repos, "\t", language, "\t", description, "\t", watchers, "\t", time, "\n"
 global fdate
@@ -25,9 +30,23 @@ ficon = ''
 def do_proj_page(pageurl):
     global fdate
     global flanguage
+    global hconn
     if v: print '- downloading project page...'
-    try: lp = urlopen(pageurl).read() # download the page's HTML
-    except: return # if there are any errors, just give up on this page
+    try: 
+        hconn.request('GET', pageurl, headers={
+          "User-Agent": "Wget/1.10"
+        })
+        lp = hconn.getresponse().read()
+    except: 
+        try:
+            # reset the connection object
+            hconn = HTTPSConnection('launchpad.net', 443)
+            sys.stderr.write('download error, retrying\n') 
+            lp = urlopen('http://launchpad.net' + pageurl).read() # try again
+        except:
+            sys.stderr.write('could not download that page. check internet connection and retry\n')
+            exit(1)
+            
     if v: print '- done'
     
     if v: print '- parsing it'
@@ -51,8 +70,9 @@ def do_proj_page(pageurl):
     elif str(current_year) + '-' in lp:
         fdate = str(current_year)
     else: # no regularly formatted years at all, and not the current year. probably an inactive project
+        print str(current_year) + '-', str(current_year) + '-' in lp
         fdate = 'old'
-    print fdate
+    #print fdate
         
     try: flanguage = lp.split('<dd><span id="edit-programminglang"><span class="yui3-editable_text-text">')[1].split('</span>')[0]
     except IndexError: flanguage = ''
@@ -60,9 +80,23 @@ def do_proj_page(pageurl):
 
 
 def do_page(pageurl):
+    global hconn
     if v: print '- downloading page...'
-    try: lp = urlopen(pageurl).read() # download the page's HTML
-    except: return # if there are any errors, just give up on this page
+
+    try: 
+        hconn.request('GET', pageurl, headers={
+          "User-Agent": "Wget/1.10"
+        })
+        lp = hconn.getresponse().read()
+    except IndexError: 
+        try:
+            # reset the connection object
+            hconn = HTTPSConnection('launchpad.net', 443)
+            sys.stderr.write('download error, retrying\n') 
+            lp = urlopen('http://launchpad.net' + pageurl).read() # try again
+        except:
+            sys.stderr.write('could not download that page. check internet connection and retry\n')
+            exit(1)
     if v: print '- done'
     
     # this splits the whole thing into a list of the project divs
@@ -106,7 +140,7 @@ def do_page(pageurl):
             id64 = str(int(id14) + 1)
             icon64 = icon14.replace(id14,  id64).replace("14.png",  "64.png")
             if testicon: print icon14, '=>', id14,  '=>', id64, '=>',   icon64,
-            if testicon: exit()
+            if testicon: exit(1)
         else: icon64 = None
         
         #print name
@@ -127,10 +161,11 @@ def do_page(pageurl):
         
         
         first = False
-        
-        do_proj_page(url)
+        do_proj_page('/' + '/'.join(url.split('/')[3:]))
+        global fdate
         time.sleep(1) # sleep 1 second and continue
-        print frepo, "\t", flanguage, "\t", fdescription, "\t", ficon, "\t", fdate, "\t", fauthor
+        if ficon: print frepo, "\t", flanguage, "\t", fdescription, "\t", ficon, "\t", fdate, "\t", fauthor
+        else: print frepo, "\t", flanguage, "\t", fdescription, "\t", '', "\t", fdate, "\t", fauthor
         
     if v: print '- done'
         
@@ -143,13 +178,15 @@ end = """</strong>
 
 if v: print 'Getting first page to count the projects...'
 try: lp = urlopen("http://launchpad.net/projects/+all?batch=1").read() # 
-except: exit()
+except: 
+    sys.stderr.write('error downloading first page, please rerun\n')
+    exit(1)
 if v: print 'done'
 
 if v: print 'parsing that page...'
 total = float(lp.split(start)[1].split(end)[0] + '.0000000')
 
-pages = total/300.0000000  # 300 results per page (its the limit)
+pages = total/300.0  # 300 results per page (its the limit)
 
 if '.' in str(pages): # its not perfectly divisible by 300, there is an extra page with only a few results
     pages = int(pages) + 1
@@ -157,8 +194,11 @@ if v: print 'done,', pages, 'pages'
 # now the interesting part, get EVERY SINGLE PAGE!!!
 for pagenum in range(0, pages):
     if v: print 'starting page', pagenum + 1
-    url = 'http://launchpad.net/projects/+all?start=%s&batch=300' % (pagenum * 300)
-    do_page(url)
+    url = '/projects/+all?start=%s&batch=300' % (pagenum * 300)
+    #try: do_page(url)
+    #except: 
+    #    try: do_page(url)
+    #    except: sys.stderr.write('failed to download batch page!')
     
 
 
