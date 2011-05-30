@@ -195,10 +195,10 @@ if v: print 'done,', pages, 'pages'
 for pagenum in range(0, pages):
     if v: print 'starting page', pagenum + 1
     url = '/projects/+all?start=%s&batch=300' % (pagenum * 300)
-    #try: do_page(url)
-    #except: 
-    #    try: do_page(url)
-    #    except: sys.stderr.write('failed to download batch page!')
+    try: do_page(url)
+    except: 
+        try: do_page(url)
+        except: sys.stderr.write('failed to download batch page!')
     
 
 
