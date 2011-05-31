@@ -186,10 +186,8 @@ if v: print 'done'
 if v: print 'parsing that page...'
 total = float(lp.split(start)[1].split(end)[0] + '.0000000')
 
-pages = total/300.0  # 300 results per page (its the limit)
+pages = (total + 299) // 300  # 300 results per page (its the limit)
 
-if '.' in str(pages): # its not perfectly divisible by 300, there is an extra page with only a few results
-    pages = int(pages) + 1
 if v: print 'done,', pages, 'pages'
 # now the interesting part, get EVERY SINGLE PAGE!!!
 for pagenum in range(0, pages):
