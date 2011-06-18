@@ -164,8 +164,8 @@ def do_page(pageurl):
         do_proj_page('/' + '/'.join(url.split('/')[3:]))
         global fdate
         time.sleep(1) # sleep 1 second and continue
-        if ficon: print frepo, "\t", flanguage, "\t", fdescription, "\t", ficon, "\t", fdate, "\t", fauthor
-        else: print frepo, "\t", flanguage, "\t", fdescription, "\t", '', "\t", fdate, "\t", fauthor
+        if ficon: print fname, '\t', frepo, "\t", flanguage, "\t", fdescription, "\t", ficon, "\t", fdate, "\t", fauthor
+        else: print fname, '\t', frepo, "\t", flanguage, "\t", fdescription, "\t", '', "\t", fdate, "\t", fauthor
         
     if v: print '- done'
         
@@ -190,7 +190,7 @@ pages = (total + 299) // 300  # 300 results per page (its the limit)
 
 if v: print 'done,', pages, 'pages'
 # now the interesting part, get EVERY SINGLE PAGE!!!
-for pagenum in range(0, pages):
+for pagenum in range(0, int(pages)):
     if v: print 'starting page', pagenum + 1
     url = '/projects/+all?start=%s&batch=300' % (pagenum * 300)
     try: do_page(url)
